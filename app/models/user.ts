@@ -6,7 +6,7 @@ import Pixel from '#models/pixel'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
   declare name: string

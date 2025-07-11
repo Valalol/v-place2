@@ -6,11 +6,11 @@ import type { HttpContext } from '@adonisjs/core/http'
 
 export interface UserCallbackInfo {
     token: DiscordToken
-    id: any
+    id: string
     name: string
-    nickName: any
+    nickName: string
     avatarUrl: string
-    email: any
+    email: string
     emailVerificationState: "verified" | "unverified" | "unsupported"
     original: {
         id: string
@@ -19,7 +19,7 @@ export interface UserCallbackInfo {
         discriminator: string
         public_flags: number
         flags: number
-        banner: string | null
+        banner: any | null
         accent_color: number | null
         global_name: string
         avatar_decoration_data: any | null

@@ -10,7 +10,7 @@
 import AuthController from '#controllers/auth_controller'
 import UsersController from '#controllers/users_controller'
 import router from '@adonisjs/core/services/router'
-import { middleware } from '#start/kernel'
+// import { middleware } from '#start/kernel'
 
 
 router.group(() => {
@@ -26,5 +26,4 @@ router.group(() => {
 
 router
 .get('/', async (ctx) => { return ctx.inertia.render('main') })
-.use(middleware.silent_auth())
 

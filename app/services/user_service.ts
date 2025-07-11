@@ -15,7 +15,7 @@ export class UserService {
         return User.all()
     }
 
-    async getById(id: number) {
+    async getById(id: string) {
         return User.find(id)
     }
 }

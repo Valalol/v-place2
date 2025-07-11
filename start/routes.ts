@@ -24,8 +24,7 @@ router.group(() => {
 }).prefix('/users')
 
 
-router.get('/', async (ctx) => {
-    console.log(ctx.auth.user)
+router
+.get('/', async (ctx) => { return ctx.inertia.render('main') })
+.use(middleware.silent_auth())
 
-    return ctx.inertia.render('main')
-}).use([middleware.silent_auth()])

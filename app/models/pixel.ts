@@ -5,12 +5,9 @@ import User from '#models/user'
 
 export default class Pixel extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
-
-  @column()
   declare x: number
 
-  @column()
+  @column({ isPrimary: true })
   declare y: number
 
   @column()

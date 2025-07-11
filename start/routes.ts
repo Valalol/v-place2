@@ -7,25 +7,15 @@
 |
 */
 
+import AuthController from '#controllers/auth_controller'
 import UsersController from '#controllers/users_controller'
 import router from '@adonisjs/core/services/router'
+import { middleware } from '#start/kernel'
 
 
 router.group(() => {
-    router.get('/redirect', ({ ally }) => {
-        ally.use('discord').redirect()
-    })
-
-    router.get('/callback', async ({ ally }) => {
-        const discord = ally.use('discord')
-
-        if (discord.accessDenied()) return 'You have cancelled the login process'
-        if (discord.stateMisMatch()) return 'We are unable to verify the request. Please try again'
-        if (discord.hasError()) return discord.getError()
-
-        const user = await discord.user()
-        return user
-    })
+    router.get('/redirect', [AuthController, 'discordRedirect'])
+    router.get('/callback', [AuthController, 'discordCallback'])
 }).prefix('/discord')
 
 
@@ -34,4 +24,8 @@ router.group(() => {
 }).prefix('/users')
 
 
-router.on('/').renderInertia('main')
+router.get('/', async (ctx) => {
+    console.log(ctx.auth.user)
+
+    return ctx.inertia.render('main')
+}).use([middleware.silent_auth()])

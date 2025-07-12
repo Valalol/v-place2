@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { Pixel } from '#types/pixel';
-import { Button } from '@/components/ui/button';
-import { usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { Check, ChevronRight, ChevronUp } from 'lucide-vue-next';
+
 import VueZoomable from "vue-zoomable";
 import "vue-zoomable/dist/style.css";
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Check, ChevronUp, LogOut } from 'lucide-vue-next';
+
+import { Pixel } from '#types/pixel';
+
 
 interface MainPageProps {
     width: number
@@ -60,7 +65,7 @@ function bright(c: string) {
                 <div v-for="color, index of colors" :key="index">
                     <input :id="`color-${index}`" type="radio" name="color" :value="color" class="peer hidden" />
                     <label :for="`color-${index}`"
-                        class="w-8 h-8 border-2 border-black rounded-sm flex items-center justify-center cursor-pointer [&>*]:invisible peer-checked:scale-120 peer-checked:[&>*]:visible"
+                        class="w-8 h-8 border shadow-xs rounded-sm flex items-center justify-center cursor-pointer [&>*]:invisible peer-checked:scale-120 peer-checked:[&>*]:visible"
                         :style="{ backgroundColor: color }">
                         <Check :color="bright(color) ? 'white' : 'black'" />
                     </label>
@@ -75,14 +80,36 @@ function bright(c: string) {
                         <Check class="size-4" />
                         Place pixel
                     </Button>
-                    <Button variant="outline">
-                        <Avatar>
-                            <AvatarImage :src="auth_user.avatarUrl" alt="@unovue" />
-                            <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
-                        <p>{{ auth_user.name }}</p>
-                        <ChevronUp />
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child>
+                            <Button variant="outline">
+                                <Avatar>
+                                    <AvatarImage :src="auth_user.avatarUrl" alt="" />
+                                </Avatar>
+                                <p>{{ auth_user.name }}</p>
+                                <ChevronUp />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent class="w-30">
+                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuGroup>
+                                <DropdownMenuItem>
+                                    <span>Profile</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <span>Settings</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem @click="router.visit('/discord/logout')">
+                                <span>Log out</span>
+                                <DropdownMenuShortcut>
+                                    <LogOut />
+                                </DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 
-import Pixel from "#models/pixel"
+import Pixel, { pixelColors } from "#models/pixel"
 import PixelHistory from "#models/pixel_history"
 import env from '#start/env'
 
@@ -20,6 +20,7 @@ export default class PixelsController {
     async main({ inertia }: HttpContext) {
         const width = env.get('WIDTH')
         const height = env.get('HEIGHT')
+        const colors = pixelColors
         const pixels = await Pixel.query().orderBy('y').orderBy('x')
         // const pixelsMap: Record<number, Record<number, Pixel>> = {}
         // for (const pixel of pixels) {
@@ -29,6 +30,6 @@ export default class PixelsController {
         //     pixelsMap[pixel.x][pixel.y] = pixel
         // }
 
-        return inertia.render('main', { width, height, pixels })
+        return inertia.render('main', { width, height, colors, pixels })
     }
 }

@@ -20,15 +20,15 @@ export default class PixelsController {
     async main({ inertia }: HttpContext) {
         const width = env.get('WIDTH')
         const height = env.get('HEIGHT')
-        const pixels = await Pixel.query().orderBy('x').orderBy('y')
-        const pixelsMap: Record<number, Record<number, Pixel>> = {}
-        for (const pixel of pixels) {
-            if (!pixelsMap[pixel.x]) {
-            pixelsMap[pixel.x] = {}
-            }
-            pixelsMap[pixel.x][pixel.y] = pixel
-        }
+        const pixels = await Pixel.query().orderBy('y').orderBy('x')
+        // const pixelsMap: Record<number, Record<number, Pixel>> = {}
+        // for (const pixel of pixels) {
+        //     if (!pixelsMap[pixel.x]) {
+        //     pixelsMap[pixel.x] = {}
+        //     }
+        //     pixelsMap[pixel.x][pixel.y] = pixel
+        // }
 
-        return inertia.render('main', { width, height, pixelsMap })
+        return inertia.render('main', { width, height, pixels })
     }
 }

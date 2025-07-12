@@ -6,7 +6,8 @@ import { usePage } from '@inertiajs/vue3';
 interface MainPageProps {
     width: number
     height: number
-    pixelsMap: Record<number, Record<number, Pixel>>
+    // pixelsMap: Record<number, Record<number, Pixel>>
+    pixels: Pixel[]
     auth_user?: any
 }
 
@@ -23,16 +24,16 @@ const auth_user = props.auth_user
             <a href="/discord/redirect">Login with Discord</a>
         </Button>
         <pre>{{ auth_user || {} }}</pre>
-        <!-- <pre>{{ pixelsMap || {} }}</pre> -->
-        <div id="main_grid" class="overflow-hidden" :style="{
-            display: 'grid',
+
+
+        <div id="main_grid" class="grid w-[600px] h-[600px]" :style="{
             gridTemplateRows: `repeat(${props.height}, 1fr)`,
             gridTemplateColumns: `repeat(${props.width}, 1fr)`
-            }">
-            <div v-for="y in props.height" :key="y">
-                <div v-for="x in props.width" :key="x">
-                    {{ pixelsMap[x-1][y-1] }}
-                </div>
+        }">
+            <div v-for="pixel in props.pixels" :key="pixel.x + '' + pixel.y" class="border-1 border-[#e4e4e4]"
+                :style="{
+                    backgroundColor: `rgb(${pixel.x * 10}, ${pixel.y * 10}, ${pixel.x*pixel.y*7})`
+                }">
             </div>
         </div>
     </div>

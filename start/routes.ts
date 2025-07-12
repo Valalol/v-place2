@@ -10,20 +10,25 @@
 import AuthController from '#controllers/auth_controller'
 import UsersController from '#controllers/users_controller'
 import router from '@adonisjs/core/services/router'
-// import { middleware } from '#start/kernel'
+import { middleware } from '#start/kernel'
+import PixelsController from '#controllers/pixels_controller'
 
 
 router.group(() => {
-    router.get('/redirect', [AuthController, 'discordRedirect'])
+    router.get('/redirect', [AuthController, 'discordRedirect']).use(middleware.guest())
     router.get('/callback', [AuthController, 'discordCallback'])
+    router.get('/logout', [AuthController, 'logout']).use(middleware.auth())
 }).prefix('/discord')
 
 
 router.group(() => {
-    router.get("/", [UsersController, 'index'])
-}).prefix('/users')
+    router.get("/users", [UsersController, 'index'])
+    router.get("/pixels", [PixelsController, 'index'])
+    router.get("/pixels_history", [PixelsController, 'history'])
+})
+.prefix('/admin')
+.use(middleware.auth()) // TODO check is admin
 
 
-router
-.get('/', async (ctx) => { return ctx.inertia.render('main') })
-
+router.post('/pixels', [PixelsController, 'new_pixel']).use(middleware.auth())
+router.get('/', [PixelsController, 'main'])

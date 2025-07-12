@@ -1,17 +1,17 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'pixels'
+  protected tableName = 'pixel_histories'
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.integer('x').notNullable()
       table.integer('y').notNullable()
       table.string('color').notNullable()
-      table.integer('user_id').unsigned().references('id').inTable('users').nullable()
-      table.primary(['x', 'y'])
+      table.integer('user_id').unsigned().references('id').inTable('users').notNullable()
       table.timestamp('created_at', { useTz: true }).notNullable()
-      table.timestamp('updated_at', { useTz: true }).nullable()
+
+      table.primary(['x', 'y', 'created_at'])
     })
   }
 

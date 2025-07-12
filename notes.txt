@@ -1,0 +1,20 @@
+GET /discord/redirect : guest middleware
+GET /discord/callback
+GET /discord/signout : auth middleware
+
+GET /admin/users
+GET /admin/pixels
+GET /admin/pixels_history
+-> auth middleware admin
+
+GET / : silent
+-> main page that receives updates through SSE (Transmit)
+
+POST /pixels : auth + check delay (maybe add a next available pixel timestamp to every users ??)
+-> returns next next available pixel timestamp if successful
+
+GET /__transmit/events
+POST /__transmit/subscribe
+POST /__transmit/unsubscribe
+-> Transmit hidden endpoints
+

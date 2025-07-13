@@ -32,7 +32,7 @@ export default class Pixel extends BaseModel {
   declare color: string
 
   @column()
-  declare userId: number
+  declare userId: string
 
   @belongsTo(() => User, {foreignKey: 'userId'})
   declare user: BelongsTo<typeof User>

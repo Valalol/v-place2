@@ -3,18 +3,34 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Pixel, { pixelColors } from "#models/pixel"
 import PixelHistory from "#models/pixel_history"
 import env from '#start/env'
+import { createPixelValidator } from '#validators/pixel'
 
 export default class PixelsController {
-    index() {
-        return Pixel.all()
+    async index() {
+        return await Pixel.query().orderBy('y').orderBy('x')
     }
 
-    history() {
-        return PixelHistory.all()
+    async history() {
+        return await PixelHistory.all()
     }
 
-    new_pixel() {
-        // return 
+    async new_pixel({ request, response, auth }: HttpContext) {
+        const data = request.all()
+        const payload = await createPixelValidator.validate(data)
+        const auth_user = auth.user
+        if (!auth_user) return
+        // TODO check for timeout
+
+        const pixel = await Pixel.query()
+            .where('x', payload.pixel.x)
+            .andWhere('y', payload.pixel.y)
+            .firstOrFail()
+
+        pixel.color = payload.color
+        pixel.userId = auth_user.id
+        await pixel.save()
+        console.log(`Pixel at (${pixel.x}, ${pixel.y}) updated`)
+        response.redirect().back()
     }
 
     async main({ inertia }: HttpContext) {
@@ -22,13 +38,6 @@ export default class PixelsController {
         const height = env.get('HEIGHT')
         const colors = pixelColors
         const pixels = await Pixel.query().orderBy('y').orderBy('x')
-        // const pixelsMap: Record<number, Record<number, Pixel>> = {}
-        // for (const pixel of pixels) {
-        //     if (!pixelsMap[pixel.x]) {
-        //     pixelsMap[pixel.x] = {}
-        //     }
-        //     pixelsMap[pixel.x][pixel.y] = pixel
-        // }
 
         return inertia.render('main', { width, height, colors, pixels })
     }

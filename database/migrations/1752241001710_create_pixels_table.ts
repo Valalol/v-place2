@@ -8,7 +8,7 @@ export default class extends BaseSchema {
       table.integer('x').notNullable()
       table.integer('y').notNullable()
       table.string('color').notNullable()
-      table.integer('user_id').unsigned().references('id').inTable('users').nullable()
+      table.string('user_id').references('id').inTable('users').nullable()
       table.primary(['x', 'y'])
       table.timestamp('created_at', { useTz: true }).notNullable()
       table.timestamp('updated_at', { useTz: true }).nullable()

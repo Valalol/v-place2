@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { router, usePage } from '@inertiajs/vue3';
+import { router, useForm, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 import VueZoomable from "vue-zoomable";
@@ -35,84 +35,111 @@ function bright(c: string) {
     let [r, g, b] = [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16))
     return .299 * r + .587 * g + .114 * b < 70
 }
+function bright_rgb(r: number, g: number, b: number) {
+    return .299 * r + .587 * g + .114 * b < 70
+}
+
+
+
+const form = useForm({
+    pixel: undefined,
+    color: "#ffffff"
+})
+
+
+function add_pixel() {
+    form.post('/pixels', {
+        onSuccess: () => {
+            console.log('form success');
+        },
+    })
+}
 
 </script>
+<!-- `rgb(${pixel.x / props.width * 250}, ${pixel.y / props.height * 250}, 100)` -->
 
 <template>
-    <div class="flex flex-col items-center w-full h-screen bg-foreground">
+    <div class="w-full h-screen">
         <!-- <pre>{{ auth_user }}</pre> -->
-
-        <VueZoomable class="size-full" selector="#playground" :enable-control-button="false" :min-zoom="0.1"
-            :wheel-zoom-step="0.15" v-model:pan="pan" v-model:zoom="zoom">
-            <div id="playground" class="grid" :style="{
-                gridTemplateRows: `repeat(${props.height}, 1fr)`,
-                gridTemplateColumns: `repeat(${props.width}, 1fr)`
-            }">
-                <div v-for="pixel in props.pixels" :key="`${pixel.x},${pixel.y}`"
-                    class="w-10 h-10 border border-[#8b57a8] flex items-center justify-center text-[9px] hover:scale-120 hover:shadow-md hover:shadow-black/50"
-                    :style="{ backgroundColor: `rgb(${pixel.x / props.width * 250}, ${pixel.y / props.height * 250}, 100)` }"
-                    @click="console.log(`Clicked on pixel (${pixel.x}, ${pixel.y})`);">
-                    <!-- :class="`bg-[#${pixel.color.toLowerCase()}]`" -->
-                    {{ `(${pixel.x}, ${pixel.y})` }}
+        <form @submit.prevent="add_pixel()" class="size-full flex flex-col items-center bg-foreground">
+            <VueZoomable class="size-full" selector="#playground" :enable-control-button="false" :min-zoom="0.1"
+                :wheel-zoom-step="0.15" v-model:pan="pan" v-model:zoom="zoom">
+                <div id="playground" class="grid" :style="{
+                    gridTemplateRows: `repeat(${props.height}, 1fr)`,
+                    gridTemplateColumns: `repeat(${props.width}, 1fr)`
+                }">
+                    <div v-for="pixel in props.pixels" :key="`${pixel.x},${pixel.y}`">
+                        <input :id="`pixel-${pixel.x}-${pixel.y}`" type="radio" name="pixel" :value="pixel"
+                            v-model="form.pixel" class="peer hidden" />
+                        <label :for="`pixel-${pixel.x}-${pixel.y}`"
+                            class="w-10 h-10 border border-primary
+                            flex items-center justify-center text-[9px] [&>*]:invisible
+                            hover:scale-120 hover:shadow-md hover:shadow-black/50
+                            peer-checked:scale-130 peer-checked:shadow-md peer-checked:shadow-black/50 peer-checked:[&>*]:visible"
+                            :style="{ backgroundColor: pixel.color }">
+                            <Check :color="bright_rgb(pixel.x / props.width * 250, pixel.y / props.height * 250, 100) ? 'white' : 'black'" />
+                        </label>
+                    </div>
                 </div>
-            </div>
-        </VueZoomable>
+            </VueZoomable>
 
-        <div id="floating_menu"
-            class="absolute self-center bottom-16 w-2/3 px-7 py-3 rounded-lg bg-accent flex flex-row justify-between items-center">
-            <div class="text-xl font-bold select-none">V/place</div>
-            <div id="colors" class="flex gap-3">
-                <div v-for="color, index of colors" :key="index">
-                    <input :id="`color-${index}`" type="radio" name="color" :value="color" class="peer hidden" />
-                    <label :for="`color-${index}`"
-                        class="w-8 h-8 border shadow-xs rounded-sm flex items-center justify-center cursor-pointer [&>*]:invisible peer-checked:scale-120 peer-checked:[&>*]:visible"
-                        :style="{ backgroundColor: color }">
-                        <Check :color="bright(color) ? 'white' : 'black'" />
-                    </label>
+            <div id="floating_menu"
+                class="absolute self-center bottom-16 w-2/3 px-7 py-3 rounded-lg bg-accent flex flex-row justify-between items-center">
+                <div class="text-xl font-bold select-none">V/place</div>
+                <div id="colors" class="flex gap-3">
+                    <div v-for="color, index of colors" :key="index">
+                        <input :id="`color-${index}`" type="radio" name="color" :value="color" v-model="form.color"
+                            class="peer hidden" />
+                        <label :for="`color-${index}`"
+                            class="w-8 h-8 border shadow-xs rounded-sm flex items-center justify-center cursor-pointer [&>*]:invisible peer-checked:scale-120 peer-checked:[&>*]:visible"
+                            :style="{ backgroundColor: color }">
+                            <Check :color="bright(color) ? 'white' : 'black'" />
+                        </label>
+                    </div>
                 </div>
-            </div>
-            <div>
-                <Button v-if="!auth_user" variant="outline">
-                    <a href="/discord/redirect">Login with Discord</a>
-                </Button>
-                <div v-else class="flex items-center gap-3">
-                    <Button variant="default">
-                        <Check class="size-4" />
-                        Place pixel
+                <div>
+                    <Button v-if="!auth_user" variant="outline">
+                        <a href="/discord/redirect">Login with Discord</a>
                     </Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger as-child>
-                            <Button variant="outline">
-                                <Avatar>
-                                    <AvatarImage :src="auth_user.avatarUrl" alt="" />
-                                </Avatar>
-                                <p>{{ auth_user.name }}</p>
-                                <ChevronUp />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent class="w-30">
-                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                    <span>Profile</span>
+                    <div v-else class="flex items-center gap-3">
+                        <Button variant="default" type="submit" :disabled="form.processing">
+                            <Check class="size-4" />
+                            Place pixel
+                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger as-child>
+                                <Button variant="outline">
+                                    <Avatar>
+                                        <AvatarImage :src="auth_user.avatarUrl" alt="" />
+                                    </Avatar>
+                                    <p>{{ auth_user.name }}</p>
+                                    <ChevronUp />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent class="w-30">
+                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem>
+                                        <span>Profile</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <span>Settings</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem @click="router.visit('/discord/logout')">
+                                    <span>Log out</span>
+                                    <DropdownMenuShortcut>
+                                        <LogOut />
+                                    </DropdownMenuShortcut>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <span>Settings</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem @click="router.visit('/discord/logout')">
-                                <span>Log out</span>
-                                <DropdownMenuShortcut>
-                                    <LogOut />
-                                </DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </template>
 <!-- [&:peer-checked>*]:block -->

@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: v-place2-app
     ports:
-      - "8082:3333"
+      - "8085:3333"
     environment:
       - NODE_ENV=production
     restart: unless-stopped

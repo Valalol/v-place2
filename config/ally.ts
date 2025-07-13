@@ -5,7 +5,7 @@ const allyConfig = defineConfig({
   discord: services.discord({
     clientId: env.get('DISCORD_CLIENT_ID'),
     clientSecret: env.get('DISCORD_CLIENT_SECRET'),
-    callbackUrl: `http://${env.get('HOST')}:${env.get('PORT')}/discord/callback`,
+    callbackUrl: `http://${env.get('DISCORD_REDIRECT_HOST')}:${env.get('PORT')}/discord/callback`,
   }),
 })
 

@@ -35,15 +35,12 @@ function bright(c: string) {
     let [r, g, b] = [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16))
     return .299 * r + .587 * g + .114 * b < 70
 }
-function bright_rgb(r: number, g: number, b: number) {
-    return .299 * r + .587 * g + .114 * b < 70
-}
 
 
 
 const form = useForm({
     pixel: undefined,
-    color: "#ffffff"
+    color: undefined
 })
 
 
@@ -69,7 +66,7 @@ function add_pixel() {
                     gridTemplateColumns: `repeat(${props.width}, 1fr)`
                 }">
                     <div v-for="pixel in props.pixels" :key="`${pixel.x},${pixel.y}`">
-                        <input :id="`pixel-${pixel.x}-${pixel.y}`" type="radio" name="pixel" :value="pixel"
+                        <input :id="`pixel-${pixel.x}-${pixel.y}`" type="radio" name="pixel" :value="{ x: pixel.x, y: pixel.y }"
                             v-model="form.pixel" class="peer hidden" />
                         <label :for="`pixel-${pixel.x}-${pixel.y}`"
                             class="w-10 h-10 border border-primary
@@ -77,7 +74,7 @@ function add_pixel() {
                             hover:scale-120 hover:shadow-md hover:shadow-black/50
                             peer-checked:scale-130 peer-checked:shadow-md peer-checked:shadow-black/50 peer-checked:[&>*]:visible"
                             :style="{ backgroundColor: pixel.color }">
-                            <Check :color="bright_rgb(pixel.x / props.width * 250, pixel.y / props.height * 250, 100) ? 'white' : 'black'" />
+                            <Check :color="bright(pixel.color) ? 'white' : 'black'" />
                         </label>
                     </div>
                 </div>

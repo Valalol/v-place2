@@ -11,7 +11,7 @@ export default class PixelsController {
     }
 
     async history() {
-        return await PixelHistory.all()
+        return await PixelHistory.query().orderBy('created_at', 'desc')
     }
 
     async new_pixel({ request, response, auth }: HttpContext) {
@@ -21,15 +21,22 @@ export default class PixelsController {
         if (!auth_user) return
         // TODO check for timeout
 
-        const pixel = await Pixel.query()
+        await Pixel.query()
             .where('x', payload.pixel.x)
             .andWhere('y', payload.pixel.y)
-            .firstOrFail()
+            .update({
+                color: payload.color,
+                userId: auth_user.id
+            })
 
-        pixel.color = payload.color
-        pixel.userId = auth_user.id
-        await pixel.save()
-        console.log(`Pixel at (${pixel.x}, ${pixel.y}) updated`)
+        await PixelHistory.create({
+            x: payload.pixel.x,
+            y: payload.pixel.y,
+            color: payload.color,
+            userId: auth_user.id,
+        })
+
+        console.log(`Pixel at (${payload.pixel.x}, ${payload.pixel.y}) updated`)
         response.redirect().back()
     }
 

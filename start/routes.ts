@@ -7,10 +7,11 @@
 |
 */
 
+import router from '@adonisjs/core/services/router'
+import transmit from '@adonisjs/transmit/services/main'
+import { middleware } from '#start/kernel'
 import AuthController from '#controllers/auth_controller'
 import UsersController from '#controllers/users_controller'
-import router from '@adonisjs/core/services/router'
-import { middleware } from '#start/kernel'
 import PixelsController from '#controllers/pixels_controller'
 
 
@@ -32,3 +33,5 @@ router.group(() => {
 
 router.post('/pixels', [PixelsController, 'new_pixel']).use(middleware.auth())
 router.get('/', [PixelsController, 'main'])
+
+transmit.registerRoutes()

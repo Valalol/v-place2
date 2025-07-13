@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: v-place2-app
+    volumes:
+      - /home/valalol/vplace2:/app/tmp
     ports:
       - "8082:3333"
     env_file:

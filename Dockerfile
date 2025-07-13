@@ -27,8 +27,6 @@ COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app
 RUN mkdir -p /app/tmp
 EXPOSE 3333
-RUN if [ ! -f /app/tmp/db.sqlite3 ]; then \
-    node ace migration:run --force && \
-    node ace db:seed; \
-    fi
-CMD ["node", "./bin/server.js"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { router, useForm, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Transmit } from '@adonisjs/transmit-client'
+import { onMounted, ref } from 'vue';
 
 import VueZoomable from "vue-zoomable";
 import "vue-zoomable/dist/style.css";
@@ -24,6 +25,8 @@ interface MainPageProps {
 
 defineProps<MainPageProps>()
 const props = usePage().props as unknown as MainPageProps
+
+const pixels_ref = ref<Pixel[]>(props.pixels)
 const auth_user = props.auth_user
 
 const zoom = ref(0.6);
@@ -37,7 +40,6 @@ function bright(c: string) {
 }
 
 
-
 const form = useForm({
     pixel: undefined,
     color: undefined
@@ -47,13 +49,34 @@ const form = useForm({
 function add_pixel() {
     form.post('/pixels', {
         onSuccess: () => {
-            console.log('form success');
+            // console.log('form success');
         },
     })
 }
 
+let subscription: ReturnType<Transmit['subscription']> | null = null
+
+onMounted(async () => {
+    const transmit = new Transmit({
+        baseUrl: window.location.origin,
+    })
+    subscription = transmit.subscription('global')
+    await subscription.create()
+
+    subscription.onMessage((data: {'message': Pixel}) => {
+        console.log('Received from Transmit:', data.message)
+        const idx = pixels_ref.value.findIndex(
+            p => p.x === data.message.x && p.y === data.message.y
+        )
+        if (idx !== -1) {
+            pixels_ref.value[idx].color = data.message.color
+            pixels_ref.value[idx].userId = data.message.userId
+        }
+    })
+})
+
+
 </script>
-<!-- `rgb(${pixel.x / props.width * 250}, ${pixel.y / props.height * 250}, 100)` -->
 
 <template>
     <div class="w-full h-screen">
@@ -65,9 +88,9 @@ function add_pixel() {
                     gridTemplateRows: `repeat(${props.height}, 1fr)`,
                     gridTemplateColumns: `repeat(${props.width}, 1fr)`
                 }">
-                    <div v-for="pixel in props.pixels" :key="`${pixel.x},${pixel.y}`">
-                        <input :id="`pixel-${pixel.x}-${pixel.y}`" type="radio" name="pixel" :value="{ x: pixel.x, y: pixel.y }"
-                            v-model="form.pixel" class="peer hidden" />
+                    <div v-for="pixel in pixels_ref" :key="`${pixel.x},${pixel.y}`">
+                        <input :id="`pixel-${pixel.x}-${pixel.y}`" type="radio" name="pixel"
+                            :value="{ x: pixel.x, y: pixel.y }" v-model="form.pixel" class="peer hidden" />
                         <label :for="`pixel-${pixel.x}-${pixel.y}`"
                             class="w-10 h-10 border border-primary
                             flex items-center justify-center text-[9px] [&>*]:invisible

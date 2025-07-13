@@ -1,11 +1,18 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 
+import env from '#start/env'
 import Pixel, { pixelColors } from "#models/pixel"
 import PixelHistory from "#models/pixel_history"
-import env from '#start/env'
 import { createPixelValidator } from '#validators/pixel'
+import { TransmitService } from '#services/transmit_service'
 
+@inject()
 export default class PixelsController {
+    constructor(
+        protected transmitService: TransmitService,
+    ) { }
+
     async index() {
         return await Pixel.query().orderBy('y').orderBy('x')
     }
@@ -29,12 +36,15 @@ export default class PixelsController {
                 userId: auth_user.id
             })
 
-        await PixelHistory.create({
+        const new_pixel = {
             x: payload.pixel.x,
             y: payload.pixel.y,
             color: payload.color,
             userId: auth_user.id,
-        })
+        }
+
+        await PixelHistory.create(new_pixel)
+        this.transmitService.send_new_pixel(new_pixel)
 
         console.log(`Pixel at (${payload.pixel.x}, ${payload.pixel.y}) updated`)
         response.redirect().back()

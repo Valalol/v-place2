@@ -114,14 +114,14 @@ onMounted(async () => {
                 </div>
 
                 <div id="floating_menu"
-                    class="px-5 py-3 rounded-lg bg-accent flex flex-row justify-between items-center gap-6">
-                    <div class="text-xl font-bold select-none">V/place</div>
+                    class="px-3 md:px-5 py-2 md:py-3 rounded-lg bg-accent flex flex-row justify-between items-center gap-1 md:gap-8">
+                    <div class="text-base md:text-xl font-bold select-none">V/place</div>
                     <div id="colors_select" class="flex xl:hidden">
                         <Select v-model="form.color">
                             <SelectTrigger class="">
-                                <div v-if="form.color" class="w-16 h-4 border shadow-xs rounded-sm align-middle"
+                                <div v-if="form.color" class="w-12 h-4 border shadow-xs rounded-sm align-middle"
                                     :style="{ backgroundColor: form.color || '#fff' }"></div>
-                                <SelectValue v-else placeholder="Select a color" />
+                                <SelectValue v-else placeholder="Color" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
@@ -129,7 +129,6 @@ onMounted(async () => {
                                     <SelectItem v-for="color in colors" :value="color">
                                         <div class="w-12 h-4 border shadow-xs rounded-sm"
                                             :style="{ backgroundColor: color }"></div>
-                                        
                                     </SelectItem>
                                 </SelectGroup>
                             </SelectContent>

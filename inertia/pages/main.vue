@@ -163,7 +163,7 @@ onMounted(async () => {
                                         <Avatar>
                                             <AvatarImage :src="auth_user.avatarUrl" alt="" />
                                         </Avatar>
-                                        <p>{{ auth_user.name }}</p>
+                                        <span class="hidden md:flex">{{ auth_user.name }}</span>
                                         <ChevronUp />
                                     </Button>
                                 </DropdownMenuTrigger>

@@ -5,7 +5,7 @@ export class UserService {
     async create(user : UserCallbackInfo) {
         return await User.create({
             id: user.id,
-            name: user.original.global_name,
+            name: user.original.global_name ?? user.name,
             email: user.email,
             avatarUrl: user.avatarUrl
         })

@@ -21,7 +21,7 @@ export interface UserCallbackInfo {
         flags: number
         banner: any | null
         accent_color: number | null
-        global_name: string
+        global_name: string |null
         avatar_decoration_data: any | null
         collectibles: any | null
         display_name_styles: any | null

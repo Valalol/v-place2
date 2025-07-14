@@ -127,7 +127,7 @@ onMounted(async () => {
                                 <SelectGroup>
                                     <SelectLabel>Colors</SelectLabel>
                                     <SelectItem v-for="color in colors" :value="color">
-                                        <div class="w-12 h-4 border shadow-xs rounded-sm"
+                                        <div class="w-16 h-6 border shadow-xs rounded-sm"
                                             :style="{ backgroundColor: color }"></div>
                                     </SelectItem>
                                 </SelectGroup>

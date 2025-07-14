@@ -4,19 +4,26 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from '#models/user'
 
 export const pixelColors = [
-  '#ff0000', // red
-  '#ffa500', // orange
-  '#ffff00', // yellow
-  '#60ff00', // lime
-  '#008000', // green dark
-  '#00a0ff', // cyan
-  '#0000ae', // dark blue
-  '#b400ff', // purple
-  '#ff98cc', // pink
+  '#e6194b', // red
+  '#f58231', // orange
+  '#ffe119', // yellow
+  '#bfef45', // lime
+  '#3cb44b', // green
+  '#469990', // teal
+  '#42d4f4', // cyan
+  '#4363d8', // blue
+  '#000075', // navy
+  '#911eb4', // purple
+  '#dcbeff', // light purple
+  '#f032e6', // magenta
+  '#fabed4', // light pink
+  '#ffd8b1', // peach
+  '#800000', // dark red
+  '#9a6324', // brown
+  '#808000', // olive
+  '#a9a9a9', // grey
   '#ffffff', // white
-  '#808080', // grey
   '#000000', // black
-  '#8b4513', // brown
 ]
 
 

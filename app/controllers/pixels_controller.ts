@@ -21,12 +21,24 @@ export default class PixelsController {
         return await PixelHistory.query().orderBy('created_at', 'desc')
     }
 
-    async new_pixel({ request, response, auth }: HttpContext) {
+    async new_pixel({ session, request, response, auth }: HttpContext) {
         const data = request.all()
         const payload = await createPixelValidator.validate(data)
         const auth_user = auth.user
-        if (!auth_user) return
-        // TODO check for timeout
+
+        if (!auth_user) {
+            session.flash('error', "Vous devez être connecté pour poser un pixel")
+            return response.redirect().back()
+        }
+
+        const lastPixel = await PixelHistory.query()
+            .where('user_id', auth_user.id)
+            .orderBy('created_at', 'desc')
+            .first()
+        if (lastPixel && lastPixel.createdAt.diffNow(["seconds"]).seconds > -30) {
+            session.flash('error', "Vous devez attendre avant de poser un nouveau pixel")
+            return response.redirect().back()
+        }
 
         await Pixel.query()
             .where('x', payload.pixel.x)
@@ -41,20 +53,32 @@ export default class PixelsController {
             y: payload.pixel.y,
             color: payload.color,
             userId: auth_user.id,
+            user: { name: auth_user.name }
         }
 
         await PixelHistory.create(new_pixel)
         this.transmitService.send_new_pixel(new_pixel)
 
-        console.log(`Pixel at (${payload.pixel.x}, ${payload.pixel.y}) updated`)
-        response.redirect().back()
+        // console.log(`Pixel at (${payload.pixel.x}, ${payload.pixel.y}) updated`)
+        session.flash('success', "Pixel posé avec succès")
+        return response.redirect().back()
     }
 
     async main({ inertia }: HttpContext) {
         const width = env.get('WIDTH')
         const height = env.get('HEIGHT')
         const colors = pixelColors
-        const pixels = await Pixel.query().orderBy('y').orderBy('x')
+        const pixels = (await Pixel.query()
+            .orderBy('y')
+            .orderBy('x')
+            .preload('user'))
+            .map(pixel => {
+                const pixelJson = pixel.toJSON()
+                return {
+                    ...pixelJson,
+                    user: pixel.user ? { name: pixel.user.name } : null
+                }
+            })
 
         return inertia.render('main', { width, height, colors, pixels })
     }

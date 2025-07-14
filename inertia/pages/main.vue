@@ -6,11 +6,11 @@ import { onMounted, ref } from 'vue';
 import VueZoomable from "vue-zoomable";
 import "vue-zoomable/dist/style.css";
 
+import { Check, ChevronUp, LogOut } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Check, ChevronUp, LogOut } from 'lucide-vue-next';
 
 import { Pixel } from '#types/pixel';
 
@@ -22,6 +22,10 @@ interface MainPageProps {
     // pixelsMap: Record<number, Record<number, Pixel>>
     pixels: Pixel[]
     auth_user?: any
+    flash?: {
+        success?: string
+        error?: string
+    }
 }
 
 defineProps<MainPageProps>()
@@ -42,7 +46,7 @@ function bright(c: string) {
 
 
 const form = useForm<{
-    pixel: { x: number; y: number } | undefined,
+    pixel: { x: number; y: number; name: string } | undefined,
     color: string | undefined
 }>({
     pixel: undefined,
@@ -68,13 +72,15 @@ onMounted(async () => {
     await subscription.create()
 
     subscription.onMessage((data: { 'message': Pixel }) => {
-        console.log('Received from Transmit:', data.message)
+        // console.log('Received from Transmit:', data.message)
         const idx = pixels_ref.value.findIndex(
             p => p.x === data.message.x && p.y === data.message.y
         )
         if (idx !== -1) {
             pixels_ref.value[idx].color = data.message.color
             pixels_ref.value[idx].userId = data.message.userId
+            if (pixels_ref.value[idx].user) pixels_ref.value[idx].user.name = data.message.user?.name
+            else pixels_ref.value[idx].user = { name: data.message.user?.name }
         }
     })
 })
@@ -84,7 +90,6 @@ onMounted(async () => {
 
 <template>
     <div class="w-full h-screen">
-        <!-- <pre>{{ auth_user }}</pre> -->
         <form @submit.prevent="add_pixel()" class="size-full flex flex-col items-center bg-foreground">
             <VueZoomable class="size-full" selector="#playground" :enable-control-button="false" :min-zoom="0.1"
                 :wheel-zoom-step="0.15" v-model:pan="pan" v-model:zoom="zoom">
@@ -94,7 +99,8 @@ onMounted(async () => {
                 }">
                     <div v-for="pixel in pixels_ref" :key="`${pixel.x},${pixel.y}`">
                         <input :id="`pixel-${pixel.x}-${pixel.y}`" type="radio" name="pixel"
-                            :value="{ x: pixel.x, y: pixel.y }" v-model="form.pixel" class="peer hidden" />
+                            :value="{ x: pixel.x, y: pixel.y, name: pixel.user?.name }" v-model="form.pixel"
+                            class="peer hidden" />
                         <label :for="`pixel-${pixel.x}-${pixel.y}`"
                             class="w-10 h-10 border-0 border-primary
                             flex items-center justify-center text-[9px] [&>*]:invisible
@@ -107,14 +113,23 @@ onMounted(async () => {
                 </div>
             </VueZoomable>
 
-            <div id="floating_zone" class="absolute self-center bottom-16 w-fit flex flex-col items-center">
-
-                <div class="bg-white rounded-full w-fit max-w-screen px-7 mb-4 font-mono ">
-                    {{ form.pixel ? `(${form.pixel?.x},${form.pixel?.y}) ` : '' }}{{ zoom.toFixed(2) }}x
+            <div id="floating_zone"
+                class="absolute self-center bottom-16 w-fit flex flex-col items-center pointer-events-none">
+                <div class="bg-accent mb-4">
+                    {{ props.flash?.success }}
+                    {{ props.flash?.error }}
+                </div>
+                <div
+                    class="bg-accent rounded-full border shadow-xs w-fit max-w-screen px-7 mb-4 font-mono text-base/snug">
+                    <span v-if="form.pixel">
+                        <span v-if="form.pixel.name">{{ form.pixel.name }}</span>
+                        ({{ form.pixel.x }},{{ form.pixel.y }})
+                    </span>
+                    <span>{{ zoom.toFixed(2) }}x</span>
                 </div>
 
                 <div id="floating_menu"
-                    class="px-3 md:px-5 py-2 md:py-3 rounded-lg bg-accent flex flex-row justify-between items-center gap-1 md:gap-8">
+                    class="px-3 md:px-5 py-2 md:py-3 border shadow-xs rounded-lg bg-accent flex flex-row justify-between items-center gap-1 md:gap-8 pointer-events-auto">
                     <div class="text-base md:text-xl font-bold select-none">V/place</div>
                     <div id="colors_select" class="flex xl:hidden">
                         <Select v-model="form.color">
@@ -193,4 +208,3 @@ onMounted(async () => {
         </form>
     </div>
 </template>
-<!-- [&:peer-checked>*]:block -->

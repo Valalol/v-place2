@@ -51,10 +51,7 @@ export default class AuthController {
         const discord = ally.use('discord')
 
         if (discord.accessDenied()) return 'You have cancelled the login process'
-        if (discord.stateMisMatch()) {
-            console.log("issue here");
-            return 'We are unable to verify the request. Please try again'
-        }
+        if (discord.stateMisMatch()) return 'We are unable to verify the request. Please try again'
         if (discord.hasError()) return discord.getError()
 
         const user = await discord.user() as UserCallbackInfo

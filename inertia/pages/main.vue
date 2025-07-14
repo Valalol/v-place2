@@ -63,7 +63,7 @@ onMounted(async () => {
     subscription = transmit.subscription('global')
     await subscription.create()
 
-    subscription.onMessage((data: {'message': Pixel}) => {
+    subscription.onMessage((data: { 'message': Pixel }) => {
         console.log('Received from Transmit:', data.message)
         const idx = pixels_ref.value.findIndex(
             p => p.x === data.message.x && p.y === data.message.y
@@ -92,7 +92,7 @@ onMounted(async () => {
                         <input :id="`pixel-${pixel.x}-${pixel.y}`" type="radio" name="pixel"
                             :value="{ x: pixel.x, y: pixel.y }" v-model="form.pixel" class="peer hidden" />
                         <label :for="`pixel-${pixel.x}-${pixel.y}`"
-                            class="w-10 h-10 border border-primary
+                            class="w-10 h-10 border-0 border-primary
                             flex items-center justify-center text-[9px] [&>*]:invisible
                             hover:scale-120 hover:shadow-md hover:shadow-black/50
                             peer-checked:scale-130 peer-checked:shadow-md peer-checked:shadow-black/50 peer-checked:[&>*]:visible"
@@ -118,9 +118,11 @@ onMounted(async () => {
                     </div>
                 </div>
                 <div>
-                    <Button v-if="!auth_user" variant="outline">
-                        <a href="/discord/redirect">Login with Discord</a>
-                    </Button>
+                    <a v-if="!auth_user" href="/discord/redirect">
+                        <Button variant="outline" type="button">
+                            Login with Discord
+                        </Button>
+                    </a>
                     <div v-else class="flex items-center gap-3">
                         <Button variant="default" type="submit" :disabled="form.processing">
                             <Check class="size-4" />

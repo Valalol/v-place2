@@ -9,6 +9,7 @@ import "vue-zoomable/dist/style.css";
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Check, ChevronUp, LogOut } from 'lucide-vue-next';
 
 import { Pixel } from '#types/pixel';
@@ -40,7 +41,10 @@ function bright(c: string) {
 }
 
 
-const form = useForm({
+const form = useForm<{
+    pixel: { x: number; y: number } | undefined,
+    color: string | undefined
+}>({
     pixel: undefined,
     color: undefined
 })
@@ -103,61 +107,87 @@ onMounted(async () => {
                 </div>
             </VueZoomable>
 
-            <div id="floating_menu"
-                class="absolute self-center bottom-16 w-2/3 px-7 py-3 rounded-lg bg-accent flex flex-row justify-between items-center">
-                <div class="text-xl font-bold select-none">V/place</div>
-                <div id="colors" class="flex gap-3">
-                    <div v-for="color, index of colors" :key="index">
-                        <input :id="`color-${index}`" type="radio" name="color" :value="color" v-model="form.color"
-                            class="peer hidden" />
-                        <label :for="`color-${index}`"
-                            class="w-8 h-8 border shadow-xs rounded-sm flex items-center justify-center cursor-pointer [&>*]:invisible peer-checked:scale-120 peer-checked:[&>*]:visible"
-                            :style="{ backgroundColor: color }">
-                            <Check :color="bright(color) ? 'white' : 'black'" />
-                        </label>
-                    </div>
+            <div id="floating_zone" class="absolute self-center bottom-16 w-fit flex flex-col items-center">
+
+                <div class="bg-white rounded-full w-fit max-w-screen px-7 mb-4 font-mono ">
+                    {{ form.pixel ? `(${form.pixel?.x},${form.pixel?.y}) ` : '' }}{{ zoom.toFixed(2) }}x
                 </div>
-                <div>
-                    <a v-if="!auth_user" href="/discord/redirect">
-                        <Button variant="outline" type="button">
-                            Login with Discord
-                        </Button>
-                    </a>
-                    <div v-else class="flex items-center gap-3">
-                        <Button variant="default" type="submit" :disabled="form.processing">
-                            <Check class="size-4" />
-                            Place pixel
-                        </Button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger as-child>
-                                <Button variant="outline">
-                                    <Avatar>
-                                        <AvatarImage :src="auth_user.avatarUrl" alt="" />
-                                    </Avatar>
-                                    <p>{{ auth_user.name }}</p>
-                                    <ChevronUp />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent class="w-30">
-                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuGroup>
-                                    <DropdownMenuItem>
-                                        <span>Profile</span>
+
+                <div id="floating_menu"
+                    class="px-7 py-3 rounded-lg bg-accent flex flex-row justify-between items-center gap-8">
+                    <div class="text-xl font-bold select-none">V/place</div>
+                    <div id="colors_select" class="flex xl:hidden">
+                        <Select v-model="form.color">
+                            <SelectTrigger class="">
+                                <div v-if="form.color" class="w-16 h-4 border shadow-xs rounded-sm align-middle"
+                                    :style="{ backgroundColor: form.color || '#fff' }"></div>
+                                <SelectValue v-else placeholder="Select a color" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Colors</SelectLabel>
+                                    <SelectItem v-for="color in colors" :value="color">
+                                        <div class="w-12 h-4 border shadow-xs rounded-sm"
+                                            :style="{ backgroundColor: color }"></div>
+                                        
+                                    </SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div id="colors_row" class="hidden gap-1 xl:flex">
+                        <div v-for="color, index of colors" :key="index">
+                            <input :id="`color-${index}`" type="radio" name="color" :value="color" v-model="form.color"
+                                class="peer hidden" />
+                            <label :for="`color-${index}`"
+                                class="w-7 h-7 border shadow-xs rounded-sm flex items-center justify-center cursor-pointer [&>*]:invisible peer-checked:scale-120 peer-checked:[&>*]:visible"
+                                :style="{ backgroundColor: color }">
+                                <Check class="size-4" :color="bright(color) ? 'white' : 'black'" />
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <a v-if="!auth_user" href="/discord/redirect">
+                            <Button variant="outline" type="button">
+                                Login with Discord
+                            </Button>
+                        </a>
+                        <div v-else class="flex items-center gap-3">
+                            <Button variant="default" type="submit" :disabled="form.processing">
+                                <Check class="size-4" />
+                                Place pixel
+                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger as-child>
+                                    <Button variant="outline">
+                                        <Avatar>
+                                            <AvatarImage :src="auth_user.avatarUrl" alt="" />
+                                        </Avatar>
+                                        <p>{{ auth_user.name }}</p>
+                                        <ChevronUp />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent class="w-30">
+                                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuItem>
+                                            <span>Profile</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <span>Settings</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem @click="router.visit('/discord/logout')">
+                                        <span>Log out</span>
+                                        <DropdownMenuShortcut>
+                                            <LogOut />
+                                        </DropdownMenuShortcut>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <span>Settings</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuGroup>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem @click="router.visit('/discord/logout')">
-                                    <span>Log out</span>
-                                    <DropdownMenuShortcut>
-                                        <LogOut />
-                                    </DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </div>
                 </div>
             </div>

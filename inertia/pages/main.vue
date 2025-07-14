@@ -114,7 +114,7 @@ onMounted(async () => {
                 </div>
 
                 <div id="floating_menu"
-                    class="px-7 py-3 rounded-lg bg-accent flex flex-row justify-between items-center gap-8">
+                    class="px-5 py-3 rounded-lg bg-accent flex flex-row justify-between items-center gap-6">
                     <div class="text-xl font-bold select-none">V/place</div>
                     <div id="colors_select" class="flex xl:hidden">
                         <Select v-model="form.color">
@@ -155,7 +155,7 @@ onMounted(async () => {
                         <div v-else class="flex items-center gap-3">
                             <Button variant="default" type="submit" :disabled="form.processing">
                                 <Check class="size-4" />
-                                Place pixel
+                                <span class="hidden md:flex">Place pixel</span>
                             </Button>
                             <DropdownMenu>
                                 <DropdownMenuTrigger as-child>

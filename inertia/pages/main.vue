@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { Transmit } from '@adonisjs/transmit-client'
 import { onMounted, ref } from 'vue';
 
@@ -27,20 +27,18 @@ const props = usePage().props as unknown as MainPageProps
 const pixels_ref = ref<Pixel[]>(props.pixels)
 const auth_user = props.auth_user
 
-const zoom = ref(0.6);
-
-
-const form = useForm<{
-    pixel: { x: number; y: number; name: string } | undefined,
-    color: string | undefined
-}>({
-    pixel: undefined,
-    color: undefined
-})
+const pixelGridRef = ref<InstanceType<typeof PixelGrid>>()
+const menuRef = ref<InstanceType<typeof BottomFloatingMenu>>()
 
 
 function add_pixel() {
-    form.post('/pixels', {
+    router.post('/pixels', {
+        pixel: {
+            x: pixelGridRef.value?.pixel_selected?.x,
+            y: pixelGridRef.value?.pixel_selected?.y
+        },
+        color: menuRef.value?.color_selected
+    }, {
         onSuccess: () => {
             // console.log('form success');
         },
@@ -73,26 +71,25 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="w-full h-screen">
-        <form @submit.prevent="add_pixel()" class="size-full flex flex-col items-center bg-foreground">
-            <PixelGrid :height="height" :width="width" :pixels="pixels_ref" />
+    <div class="w-full h-screen flex flex-col items-center bg-foreground">
+        <PixelGrid ref="pixelGridRef" :height="height" :width="width" :pixels="pixels_ref" />
 
-            <div id="floating_zone" class="absolute self-center bottom-16 w-fit flex flex-col items-center pointer-events-none">
-                <div class="bg-accent mb-4">
-                    {{ props.flash?.success }}
-                    {{ props.flash?.error }}
-                </div>
-                <div
-                    class="bg-accent rounded-full border shadow-xs w-fit max-w-screen px-7 mb-4 font-mono text-base/snug">
-                    <span v-if="form.pixel">
-                        <span v-if="form.pixel.name">{{ form.pixel.name }}</span>
-                        ({{ form.pixel.x }},{{ form.pixel.y }})
-                    </span>
-                    <span>{{ zoom.toFixed(2) }}x</span>
-                </div>
-
-                <BottomFloatingMenu :colors="colors" :auth_user="auth_user" />
+        <div id="floating_zone"
+            class="absolute self-center bottom-16 w-fit flex flex-col items-center pointer-events-none">
+            <div class="bg-accent mb-4">
+                {{ props.flash?.success }}
+                {{ props.flash?.error }}
             </div>
-        </form>
+            <div class="bg-accent rounded-full border shadow-xs w-fit max-w-screen px-7 mb-4 font-mono text-base/snug">
+                <span v-if="pixelGridRef?.pixel_selected">
+                    <span v-if="pixelGridRef.pixel_selected.user?.name">{{ pixelGridRef.pixel_selected.user.name
+                        }}</span>
+                    ({{ pixelGridRef.pixel_selected.x }},{{ pixelGridRef.pixel_selected.y }})
+                </span>
+                <span>{{ pixelGridRef?.zoom.toFixed(2) }}x</span>
+            </div>
+
+            <BottomFloatingMenu ref="menuRef" :colors="colors" :auth_user="auth_user" @place_pixel="add_pixel" />
+        </div>
     </div>
 </template>

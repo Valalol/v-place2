@@ -5,10 +5,12 @@ import { ref } from 'vue';
 import { User } from '#types/user';
 
 import { Check, ChevronUp, LogOut } from 'lucide-vue-next';
+import { bright } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+
 
 
 interface Props {
@@ -17,14 +19,16 @@ interface Props {
 }
 defineProps<Props>()
 
+interface Emits {
+    place_pixel: []
+}
+const emits = defineEmits<Emits>()
+
 const color_selected = ref<string | undefined>(undefined)
 
-function bright(c: string) {
-    c = c.replace(/^#/, '')
-    if (c.length == 3) c = c.replace(/./g, x => x + x)
-    let [r, g, b] = [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16))
-    return .299 * r + .587 * g + .114 * b < 70
-}
+defineExpose({
+    color_selected
+})
 
 </script>
 
@@ -65,7 +69,7 @@ function bright(c: string) {
                 </Button>
             </a>
             <div v-else class="flex items-center gap-3">
-                <Button variant="default" type="submit">
+                <Button variant="default" type="button" @click="emits('place_pixel')">
                     <!--  :disabled="form.processing" -->
                     <Check class="size-4" />
                     <span class="hidden md:flex">Place pixel</span>

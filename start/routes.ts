@@ -32,6 +32,8 @@ router.group(() => {
 
 
 router.post('/pixels', [PixelsController, 'new_pixel']).use(middleware.auth())
+
 router.get('/', [PixelsController, 'main'])
+router.get('/timeview', [PixelsController, 'timeview'])
 
 transmit.registerRoutes()

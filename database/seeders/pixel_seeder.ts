@@ -1,6 +1,7 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import env from '#start/env'
 import Pixel from '#models/pixel'
+import PixelHistory from '#models/pixel_history'
 
 export default class PixelSeeder extends BaseSeeder {
   async run() {
@@ -16,5 +17,6 @@ export default class PixelSeeder extends BaseSeeder {
     }
 
     await Pixel.createMany(pixels)
+    await PixelHistory.createMany(pixels)
   }
 }

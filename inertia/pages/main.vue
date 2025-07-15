@@ -8,7 +8,7 @@ import PixelGrid from '@/components/PixelGrid.vue';
 import BottomFloatingMenu from '@/components/Menu.vue';
 
 
-interface MainPageProps {
+interface PageProps {
     width: number
     height: number
     colors: string[]
@@ -21,8 +21,8 @@ interface MainPageProps {
     }
 }
 
-defineProps<MainPageProps>()
-const props = usePage().props as unknown as MainPageProps
+defineProps<PageProps>()
+const props = usePage().props as unknown as PageProps
 
 const pixels_ref = ref<Pixel[]>(props.pixels)
 const auth_user = props.auth_user
@@ -89,7 +89,7 @@ onMounted(async () => {
                 <span>{{ pixelGridRef?.zoom.toFixed(2) }}x</span>
             </div>
 
-            <BottomFloatingMenu ref="menuRef" :colors="colors" :auth_user="auth_user" @place_pixel="add_pixel" />
+            <BottomFloatingMenu ref="menuRef" :place_pixel="true" :colors="colors" :auth_user="auth_user" @place_pixel="add_pixel" />
         </div>
     </div>
 </template>

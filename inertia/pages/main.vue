@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import { Transmit } from '@adonisjs/transmit-client'
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 import { Pixel } from '#types/pixel';
 import PixelGrid from '@/components/PixelGrid.vue';
 import BottomFloatingMenu from '@/components/Menu.vue';
+
+import { Toaster, } from '@/components/ui/sonner'
+import { toast } from 'vue-sonner'
+import 'vue-sonner/style.css'
 
 
 interface PageProps {
@@ -67,28 +71,44 @@ onMounted(async () => {
     })
 })
 
+watch(
+    () => page.props.success,
+    (newSuccess, oldSuccess) => {
+        if (newSuccess && newSuccess !== oldSuccess) {
+            toast.success(newSuccess)
+        }
+    }
+)
+watch(
+    () => page.props.error,
+    (newError, oldError) => {
+        if (newError && newError !== oldError) {
+            toast.error(newError)
+        }
+    }
+)
+
+
 </script>
 
 <template>
+    <Toaster rich-colors theme="system" />
     <div class="w-full h-screen flex flex-col items-center bg-foreground">
         <PixelGrid ref="pixelGridRef" :height="height" :width="width" :pixels="pixels_ref" />
 
         <div id="floating_zone"
             class="absolute self-center bottom-16 w-fit flex flex-col items-center pointer-events-none">
-            <div class="bg-accent px-7 mb-4 rounded-full">
-                Success : {{ $page.props.success }}<br>
-                Error : {{ $page.props.error }}
-            </div>
             <div class="bg-accent rounded-full border shadow-xs w-fit max-w-screen px-7 mb-4 font-mono text-base/snug">
                 <span v-if="pixelGridRef?.pixel_selected">
                     <span v-if="pixelGridRef.pixel_selected.user?.name">{{ pixelGridRef.pixel_selected.user.name
-                        }}</span>
+                    }}</span>
                     ({{ pixelGridRef.pixel_selected.x }},{{ pixelGridRef.pixel_selected.y }})
                 </span>
                 <span>{{ pixelGridRef?.zoom.toFixed(2) }}x</span>
             </div>
 
-            <BottomFloatingMenu ref="menuRef" :place_pixel="true" :colors="colors" :auth_user="auth_user" @place_pixel="add_pixel" />
+            <BottomFloatingMenu ref="menuRef" :place_pixel="true" :colors="colors" :auth_user="auth_user"
+                @place_pixel="add_pixel" />
         </div>
     </div>
 </template>

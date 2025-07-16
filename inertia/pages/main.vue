@@ -15,14 +15,13 @@ interface PageProps {
     // pixelsMap: Record<number, Record<number, Pixel>>
     pixels: Pixel[]
     auth_user?: any
-    flash?: {
-        success?: string
-        error?: string
-    }
+    success?: string
+    error?: string
 }
 
 defineProps<PageProps>()
-const props = usePage().props as unknown as PageProps
+const page = usePage()
+const props = page.props as unknown as PageProps
 
 const pixels_ref = ref<Pixel[]>(props.pixels)
 const auth_user = props.auth_user
@@ -76,9 +75,9 @@ onMounted(async () => {
 
         <div id="floating_zone"
             class="absolute self-center bottom-16 w-fit flex flex-col items-center pointer-events-none">
-            <div class="bg-accent mb-4">
-                {{ props.flash?.success }}
-                {{ props.flash?.error }}
+            <div class="bg-accent px-7 mb-4 rounded-full">
+                Success : {{ $page.props.success }}<br>
+                Error : {{ $page.props.error }}
             </div>
             <div class="bg-accent rounded-full border shadow-xs w-fit max-w-screen px-7 mb-4 font-mono text-base/snug">
                 <span v-if="pixelGridRef?.pixel_selected">

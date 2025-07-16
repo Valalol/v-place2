@@ -12,6 +12,8 @@ const inertiaConfig = defineConfig({
    */
   sharedData: {
     auth_user: (ctx) => ctx.inertia.always(() => ctx.auth?.user ?? undefined),
+    success: (ctx) => ctx.session.flashMessages.get('success') ?? undefined,
+    error: (ctx) => ctx.session.flashMessages.get('error') ?? undefined,
   },
 
   /**

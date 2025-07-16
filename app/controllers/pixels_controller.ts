@@ -36,8 +36,8 @@ export default class PixelsController {
             .where('user_id', auth_user.id)
             .orderBy('created_at', 'desc')
             .first()
-        // if (lastPixel && lastPixel.createdAt.diffNow(["seconds"]).seconds > -30) {
-        if (lastPixel && lastPixel.createdAt.diffNow(["seconds"]).seconds > 0) {
+        if (lastPixel && lastPixel.createdAt.diffNow(["seconds"]).seconds > -10) {
+        // if (lastPixel && lastPixel.createdAt.diffNow(["seconds"]).seconds > 0) {
             session.flash('error', "Vous devez attendre avant de poser un nouveau pixel")
             return response.redirect().back()
         }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import { Transmit } from '@adonisjs/transmit-client'
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 
 import { Pixel } from '#types/pixel';
 import PixelGrid from '@/components/PixelGrid.vue';
@@ -10,6 +10,7 @@ import BottomFloatingMenu from '@/components/Menu.vue';
 import { Toaster, } from '@/components/ui/sonner'
 import { toast } from 'vue-sonner'
 import 'vue-sonner/style.css'
+import { User } from '#types/user';
 
 
 interface PageProps {
@@ -28,7 +29,9 @@ const page = usePage()
 const props = page.props as unknown as PageProps
 
 const pixels_ref = ref<Pixel[]>(props.pixels)
-const auth_user = props.auth_user
+
+// Use computed to make auth_user reactive to page props changes
+const auth_user = computed(() => page.props.auth_user as User)
 
 const pixelGridRef = ref<InstanceType<typeof PixelGrid>>()
 const menuRef = ref<InstanceType<typeof BottomFloatingMenu>>()
@@ -43,7 +46,7 @@ function add_pixel() {
         color: menuRef.value?.color_selected
     }, {
         onSuccess: () => {
-            // console.log('form success');
+            // Auth user will be automatically updated via computed property
         },
     })
 }

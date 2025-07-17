@@ -11,7 +11,7 @@ const inertiaConfig = defineConfig({
      * Data that should be shared with all rendered pages
      */
     sharedData: {
-        auth_user: (ctx) => ctx.inertia.always(() => ctx.auth?.user ?? undefined),
+        auth_user: (ctx) => ctx.auth?.user ?? undefined,
         success: (ctx) => ctx.session.flashMessages.get('success') ? `${ctx.session.flashMessages.get('success')}|${crypto.randomUUID()}` : undefined,
         error: (ctx) => ctx.session.flashMessages.get('error') ? `${ctx.session.flashMessages.get('error')}|${crypto.randomUUID()}` : undefined,
     },

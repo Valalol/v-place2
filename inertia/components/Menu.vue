@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 import { User } from '#types/user';
 
 import { Check, ChevronUp, LogOut } from 'lucide-vue-next';
 import { bright } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -34,6 +35,50 @@ const color_selected = ref<string | undefined>(undefined)
 
 defineExpose({
     color_selected
+})
+
+
+// Reactive current time for progress calculation
+const now = ref(new Date())
+let timeInterval: NodeJS.Timeout | null = null
+
+// Calculate progress percentage (0-100)
+const pixelProgress = computed(() => {
+    if (!props.auth_user?.lastPixelTime || !props.auth_user?.nextPixelTime) return 100
+
+    const lastTime = new Date(props.auth_user.lastPixelTime).getTime()
+    const nextTime = new Date(props.auth_user.nextPixelTime).getTime()
+    const currentTime = now.value.getTime()
+
+    if (currentTime >= nextTime) return 100
+
+    const totalDuration = nextTime - lastTime
+    const elapsed = currentTime - lastTime
+
+    return Math.max(0, Math.min(100, (elapsed / totalDuration) * 100))
+})
+
+// Calculate remaining time in seconds
+const remainingSeconds = computed(() => {
+    if (!props.auth_user?.nextPixelTime) return 0
+
+    const nextTime = new Date(props.auth_user.nextPixelTime).getTime()
+    const currentTime = now.value.getTime()
+
+    return Math.max(0, Math.ceil((nextTime - currentTime) / 1000))
+})
+
+// Update current time every second
+onMounted(() => {
+    timeInterval = setInterval(() => {
+        now.value = new Date()
+    }, 1000)
+})
+
+onUnmounted(() => {
+    if (timeInterval) {
+        clearInterval(timeInterval)
+    }
 })
 
 </script>
@@ -69,7 +114,15 @@ defineExpose({
                     <Check class="size-4" :color="bright(color) ? 'white' : 'black'" />
                 </div>
             </div>
-            <Button variant="default" type="button" @click="emits('place_pixel')">
+
+            <div v-if="remainingSeconds > 0" class="w-16 md:w-32 flex flex-col gap-1">
+                <div class="text-xs text-center">
+                    <span>{{ remainingSeconds }}s</span><span class="hidden md:inline"> remaining</span>
+                </div>
+                <Progress :model-value="pixelProgress" class="h-2" />
+            </div>
+
+            <Button v-else variant="default" type="button" @click="emits('place_pixel')">
                 <!--  :disabled="form.processing" -->
                 <Check class="size-4" />
                 <span class="hidden md:flex">Place pixel</span>

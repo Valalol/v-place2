@@ -42,12 +42,16 @@ defineExpose({
 const now = ref(new Date())
 let timeInterval: NodeJS.Timeout | null = null
 
+const parseUTC = (timeStr: string): number => {
+    return new Date(timeStr).getTime()
+}
+
 // Calculate progress percentage (0-100)
 const pixelProgress = computed(() => {
     if (!props.auth_user?.lastPixelTime || !props.auth_user?.nextPixelTime) return 100
 
-    const lastTime = new Date(props.auth_user.lastPixelTime).getTime()
-    const nextTime = new Date(props.auth_user.nextPixelTime).getTime()
+    const lastTime = parseUTC(props.auth_user.lastPixelTime)
+    const nextTime = parseUTC(props.auth_user.nextPixelTime)
     const currentTime = now.value.getTime()
 
     if (currentTime >= nextTime) return 100
@@ -62,7 +66,7 @@ const pixelProgress = computed(() => {
 const remainingSeconds = computed(() => {
     if (!props.auth_user?.nextPixelTime) return 0
 
-    const nextTime = new Date(props.auth_user.nextPixelTime).getTime()
+    const nextTime = parseUTC(props.auth_user.nextPixelTime)
     const currentTime = now.value.getTime()
 
     return Math.max(0, Math.ceil((nextTime - currentTime) / 1000))

@@ -122,7 +122,7 @@ onUnmounted(() => {
                 <Progress :model-value="pixelProgress" class="h-2" />
             </div>
 
-            <Button v-else variant="default" type="button" @click="emits('place_pixel')">
+            <Button variant="default" type="button" @click="emits('place_pixel')">
                 <!--  :disabled="form.processing" -->
                 <Check class="size-4" />
                 <span class="hidden md:flex">Place pixel</span>

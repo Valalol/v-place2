@@ -7,6 +7,7 @@ export default class AdminController {
         const data = request.all()
         const payload = await changeGridSizeValidator.validate(data)
 
+        console.log(payload);
         // TODO change grid size (width and height)
 
         session.flash('success', "Pixel posé avec succès")

@@ -37,7 +37,7 @@ const { handleSubmit } = useForm({
 
 const onSubmit = handleSubmit((values) => {
     console.log(values);
-    // router.post('/admin/size', values)
+    router.post('/admin/size', values)
 })
 
 </script>

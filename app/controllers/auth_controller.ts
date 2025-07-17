@@ -55,12 +55,18 @@ export default class AuthController {
         if (discord.hasError()) return discord.getError()
 
         const user = await discord.user() as UserCallbackInfo
+        // console.log(user);
         const existingUser = await this.userService.getById(user.id)
 
         if (existingUser) {
+            // console.log('existing user');
+            // console.log(existingUser);
             await auth.use('web').login(existingUser)
         } else {
+            // TODO Fix user not getting logged in when first loging in
+            // console.log('new user');
             const userInDb = await this.userService.create(user)
+            // console.log(userInDb);
             await auth.use('web').login(userInDb)
         }
         return response.redirect('/')

@@ -9,6 +9,8 @@ export default class extends BaseSchema {
       table.string('name').nullable()
       table.string('email', 254).notNullable().unique()
       table.string('avatar_url').notNullable()
+      table.timestamp('last_pixel_time', { useTz: true }).nullable()
+      table.timestamp('next_pixel_time', { useTz: true }).notNullable()
       table.timestamp('created_at', { useTz: true }).notNullable()
       table.timestamp('updated_at', { useTz: true }).nullable()
     })

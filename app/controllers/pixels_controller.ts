@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
+import { DateTime } from 'luxon'
 
 import env from '#start/env'
 import Pixel, { pixelColors } from "#models/pixel"
@@ -32,13 +33,10 @@ export default class PixelsController {
             return response.redirect().back()
         }
 
-        const lastPixel = await PixelHistory.query()
-            .where('user_id', auth_user.id)
-            .orderBy('created_at', 'desc')
-            .first()
-        if (lastPixel && lastPixel.createdAt.diffNow(["seconds"]).seconds > -10) {
-        // if (lastPixel && lastPixel.createdAt.diffNow(["seconds"]).seconds > 0) {
-            session.flash('error', "Vous devez attendre avant de poser un nouveau pixel")
+        const now = DateTime.now()
+        if (now < auth_user.nextPixelTime) {
+            const remainingSeconds = Math.ceil(auth_user.nextPixelTime.diff(now, 'seconds').seconds)
+            session.flash('error', `Vous devez attendre encore ${remainingSeconds} secondes avant de poser un nouveau pixel`)
             return response.redirect().back()
         }
 
@@ -47,19 +45,29 @@ export default class PixelsController {
             .andWhere('y', payload.pixel.y)
             .update({
                 color: payload.color,
-                userId: auth_user.id
+                userId: auth_user.id,
             })
 
-        const new_pixel = {
+        auth_user.lastPixelTime = now
+        // TODO use real timeout    env.get('TIMEOUT')
+        auth_user.nextPixelTime = now.plus({ seconds: 10 })
+        await auth_user.save()
+
+        await PixelHistory.create({
             x: payload.pixel.x,
             y: payload.pixel.y,
             color: payload.color,
             userId: auth_user.id,
-            user: { name: auth_user.name }
-        }
+        })
 
-        await PixelHistory.create(new_pixel)
-        this.transmitService.send_new_pixel(new_pixel)
+        // Send update via transmit service with string timestamp
+        this.transmitService.send_new_pixel({
+            x: payload.pixel.x,
+            y: payload.pixel.y,
+            color: payload.color,
+            userId: auth_user.id,
+            user: { name: auth_user.name },
+        })
 
         // console.log(`Pixel at (${payload.pixel.x}, ${payload.pixel.y}) updated`)
         session.flash('success', "Pixel posé avec succès")

@@ -17,6 +17,12 @@ export default class User extends BaseModel {
   @column()
   declare avatarUrl: string
 
+  @column.dateTime()
+  declare lastPixelTime: DateTime
+
+  @column.dateTime({ autoCreate: true })
+  declare nextPixelTime: DateTime
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

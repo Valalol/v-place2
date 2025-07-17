@@ -13,6 +13,7 @@ import { middleware } from '#start/kernel'
 import AuthController from '#controllers/auth_controller'
 import UsersController from '#controllers/users_controller'
 import PixelsController from '#controllers/pixels_controller'
+import AdminController from '#controllers/admin_controller'
 
 
 router.group(() => {
@@ -23,9 +24,13 @@ router.group(() => {
 
 
 router.group(() => {
+    router.get("/", [AdminController, 'main'])
+
     router.get("/users", [UsersController, 'index'])
     router.get("/pixels", [PixelsController, 'index'])
     router.get("/pixels_history", [PixelsController, 'history'])
+
+    router.post("/size", [AdminController, 'update_grid_size'])
 })
 .prefix('/admin')
 .use([middleware.auth(), middleware.admin()])

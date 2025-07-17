@@ -71,22 +71,8 @@ onMounted(async () => {
     })
 })
 
-watch(
-    () => page.props.success,
-    (newSuccess, oldSuccess) => {
-        if (newSuccess && newSuccess !== oldSuccess) {
-            toast.success(newSuccess)
-        }
-    }
-)
-watch(
-    () => page.props.error,
-    (newError, oldError) => {
-        if (newError && newError !== oldError) {
-            toast.error(newError)
-        }
-    }
-)
+watch(() => page.props.success, (msg) => { if (msg) toast.success((msg as string).split('|')[0]) })
+watch(() => page.props.error, (msg) => { if (msg) toast.error((msg as string).split('|')[0]) })
 
 
 </script>
@@ -101,7 +87,7 @@ watch(
             <div class="bg-accent rounded-full border shadow-xs w-fit max-w-screen px-7 mb-4 font-mono text-base/snug">
                 <span v-if="pixelGridRef?.pixel_selected">
                     <span v-if="pixelGridRef.pixel_selected.user?.name">{{ pixelGridRef.pixel_selected.user.name
-                    }}</span>
+                        }}</span>
                     ({{ pixelGridRef.pixel_selected.x }},{{ pixelGridRef.pixel_selected.y }})
                 </span>
                 <span>{{ pixelGridRef?.zoom.toFixed(2) }}x</span>

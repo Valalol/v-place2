@@ -4,7 +4,7 @@ export interface Pixel {
     x: number
     y: number
     color: string
-    userId: string
+    userId: string | null
     user?: User
     createdAt?: string
     updatedAt?: string

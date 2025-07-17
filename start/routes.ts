@@ -28,7 +28,7 @@ router.group(() => {
     router.get("/pixels_history", [PixelsController, 'history'])
 })
 .prefix('/admin')
-.use(middleware.auth()) // TODO check is admin
+.use([middleware.auth(), middleware.admin()])
 
 
 router.post('/pixels', [PixelsController, 'new_pixel']).use(middleware.auth())
